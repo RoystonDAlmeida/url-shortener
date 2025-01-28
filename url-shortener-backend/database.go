@@ -23,16 +23,34 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	createTable()
+	createTables()
 }
 
-func createTable() {
-	sqlStmt := `
+// createTables creates the necessary tables for the URL shortener application
+func createTables() {
+	// SQL statement to create urls table
+	sqlStmtURLs := `
 	CREATE TABLE IF NOT EXISTS urls (
 	    short_url TEXT PRIMARY KEY,
-	    original_url TEXT NOT NULL
-	    );`
-	if _, err := urlShortener.db.Exec(sqlStmt); err != nil {
+	    original_url TEXT NOT NULL,
+	    custom_alias TEXT,
+	    expiration_date DATETIME
+	);`
+	if _, err := urlShortener.db.Exec(sqlStmtURLs); err != nil {
+		log.Fatal(err)
+	}
+
+	// SQL statement to create clicks table
+	sqlStmtClicks := `
+	CREATE TABLE IF NOT EXISTS clicks (
+	    id INTEGER PRIMARY KEY AUTOINCREMENT,
+	    short_url TEXT NOT NULL,
+	    clicked_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+	    ip_address TEXT,
+	    user_agent TEXT,
+	    FOREIGN KEY (short_url) REFERENCES urls (short_url) ON DELETE CASCADE
+	);`
+	if _, err := urlShortener.db.Exec(sqlStmtClicks); err != nil {
 		log.Fatal(err)
 	}
 }
