@@ -21,6 +21,7 @@ func main() {
 	http.HandleFunc("/shorten", shortenURLHandler)
 	http.HandleFunc("/", redirectHandler)
 	http.HandleFunc("/validate", validateURLHandler)
+	http.HandleFunc("/analytics/", analyticsHandler)
 
 	address := getEnv("SERVER_ADDRESS", "localhost:8080")
 	log.Printf("Server is running on http://%s\n", address)
