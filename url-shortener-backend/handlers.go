@@ -9,6 +9,13 @@ import (
 	"time"
 )
 
+type URLEntry struct {
+	ShortURL       string  `json:"short_url"`
+	LongURL        string  `json:"long_url"`
+	CustomAlias    *string `json:"custom_alias,omitempty"` // Pointer to allow null values
+	ExpirationDate *string `json:"expiration_date,omitempty"`
+}
+
 func shortenURLHandler(w http.ResponseWriter, r *http.Request) {
 	// Enable CORS for all requests
 	enableCORS(w)
@@ -246,4 +253,58 @@ func analyticsHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(data) // Send JSON response with analytics data
+}
+
+func getURLEntryHandler(w http.ResponseWriter, r *http.Request) {
+	// Enable CORS for all requests
+	enableCORS(w)
+
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	if r.Method == http.MethodGet {
+		shortUrl := r.URL.Query().Get("short_url") // Extract short_url from query parameters
+
+		if shortUrl == "" {
+			http.Error(w, "Missing short_url parameter", http.StatusBadRequest)
+			return
+		}
+
+		//
+		var urlEntry URLEntry
+
+		// Query the database for the URL entry
+		err := urlShortener.db.QueryRow("SELECT short_url, original_url, custom_alias, expiration_date FROM urls WHERE short_url = ?", shortUrl).
+			Scan(&urlEntry.ShortURL, &urlEntry.LongURL, &urlEntry.CustomAlias, &urlEntry.ExpirationDate)
+
+		if err != nil {
+			if err == sql.ErrNoRows {
+				http.Error(w, "No entry found for the provided short URL", http.StatusNotFound)
+				return
+			}
+			log.Printf("Database query error: %v", err)
+			http.Error(w, "Database error", http.StatusInternalServerError)
+			return
+		}
+
+		// Format expiration date if it exists
+		if urlEntry.ExpirationDate != nil {
+			parsedDate, err := time.Parse("2006-01-02T15:04:05Z", *urlEntry.ExpirationDate) // Parse the incoming date
+			if err != nil {
+				log.Printf("Date parsing error: %v", err)
+				http.Error(w, "Invalid expiration date format", http.StatusBadRequest)
+				return
+			}
+			formattedDate := parsedDate.Format("02 January 2006") // Format to desired output
+			urlEntry.ExpirationDate = &formattedDate              // Update expiration date in the struct
+		}
+
+		// Set response header and encode the response as JSON
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(urlEntry)
+	} else {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	}
 }
