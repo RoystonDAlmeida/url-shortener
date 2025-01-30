@@ -24,7 +24,9 @@ const validateURL = async (longURL) => {
     }
 };
 
-export const shortenURL = async (longURL) => {
+export const shortenURL = async (data) => {
+    const { longURL, alias, expiration } = data; // Destructure data object
+
     // First, validate the URL before making the request
     if (!isValidURL(longURL)) {
         throw new Error('Invalid URL format. Please provide a valid URL.');
@@ -38,7 +40,13 @@ export const shortenURL = async (longURL) => {
     }
 
     try {
-        const response = await axios.post(`${BASE_URL}/shorten`, new URLSearchParams({ url: longURL }));
+        const response = await axios.post(`${BASE_URL}/shorten`, 
+            new URLSearchParams({ 
+                url: longURL,
+                alias: alias || '', // Optional custom alias
+                expiration: expiration 
+        }));
+
         return response.data;
     } catch (error) {
         throw new Error('Failed to shorten URL. Please check the console for details.');
