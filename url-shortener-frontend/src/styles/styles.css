@@ -41,11 +41,29 @@ html, body {
     display: flex;
     align-items: center; /* Center content vertically */
     justify-content: center; /* Center content horizontally */
+    padding: 10px;
 }
 
 .logo {
     height: 40px; /* Adjust size as needed */
     margin-right: 10px; /* Space between logo and text */
+}
+
+.dashboard-button {
+    background-color: #007bff; 
+    color: white; 
+    border: 1px solid white; 
+    border-radius: 5px; 
+    cursor: pointer;
+    padding: 10px 15px;
+    width: 100%;
+    margin-left: 10px;
+    margin-top: 10px;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+  
+.dashboard-button:hover {
+    background-color: #0056b3; /* Darker shade on hover */
 }
 
 form {
@@ -145,7 +163,7 @@ p {
     }
 }  
 
-.analytics-container {
+.analytics-container, .dashboard-container {
     background-color: white;
     border-radius: 8px;
     padding: 20px;
@@ -209,4 +227,65 @@ p {
   
 .tabs span.active {
     font-weight: bold;
+}
+
+.dashboard-title {
+    font-size: 24px; 
+    color: #333; 
+    text-align: center; 
+    margin-bottom: 10px; 
+}
+
+.scrollable-box {
+    background-color: white;
+    border: 2px solid gray; 
+    border-radius: 8px; 
+    padding: 20px;
+    margin-top: 10px;
+    max-height: 300px; 
+    overflow-y: auto; 
+    scrollbar-width: thin; 
+}
+
+/* Custom scrollbar styles for WebKit browsers (Chrome, Safari) */
+.scrollable-box::-webkit-scrollbar {
+    width: 10px; 
+}
+
+.scrollable-box::-webkit-scrollbar-thumb {
+    background-color: gray; 
+    border-radius: 5px; 
+}
+
+.scrollable-box::-webkit-scrollbar-track {
+    background-color: #f1f1f1; 
+}
+
+.urls-table {
+    width: 100%;
+    border-collapse: collapse; /* Merge borders */
+}
+
+.urls-table th, .urls-table td {
+    padding: 10px; 
+    text-align: center; 
+    border-right: 1px solid #ddd; 
+}
+
+.urls-table th:last-child, .urls-table td:last-child {
+    border-right: none; 
+}
+
+.urls-table th {
+    font-weight: bold;
+    color: black;
+}
+
+.urls-table td {
+    color: red; /* Default color for table data */
+}
+
+.urls-table td:first-child {
+    color: blue; /* Color for the Short URL */
+    font-weight: bold; /* Bold for Short URL */
 }
