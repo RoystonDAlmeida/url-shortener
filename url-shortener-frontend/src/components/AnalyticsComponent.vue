@@ -44,7 +44,7 @@
       </div>
   
       <!-- Chart Error message-->
-      <div v-if="chartError" class="error-message">Loading chart error: {{ chartError }}</div>
+      <div v-if="chartError" class="error-message"> {{ chartError }}</div>
     </div>
 </template>
 
@@ -108,6 +108,20 @@
     },
 
     mounted() {
+        // Get the full URL
+        const fullURL = window.location.href;
+
+        // Extract the part after 'analytics/'
+        const urlParts = fullURL.split('/'); // Split by '/'
+        const analyticsIndex = urlParts.indexOf('analytics'); 
+    
+        if (analyticsIndex !== -1 && analyticsIndex + 1 < urlParts.length) {
+            const entryName = urlParts[analyticsIndex + 1]; 
+            document.title = `URL Analytics | ${entryName}`; 
+        } else {
+            document.title = 'URL Analytics |'; 
+        }
+        
         this.getURLEntry(); // Fetch the URL entry when the component is mounted
         this.fetchAnalyticsData();
     },
@@ -141,8 +155,18 @@
 
                 this.analyticsData = await response.json();
                 console.log('Analytics Data:', this.analyticsData); // Log the analytics data
-                this.days = Object.keys(this.analyticsData.day); // Extract days from the response
-                this.selectDate(0); // Automatically select the first date to initialize chart
+
+                // Check if the data structure is valid
+                if (this.analyticsData && this.analyticsData.day) {
+                    this.days = Object.keys(this.analyticsData.day); // Extract days from the response
+                    if (this.days.length > 0) {
+                        this.selectDate(0); // Automatically select the first date to initialize chart
+                    } else {
+                        this.chartError = 'No analytics data available for this URL.';
+                    }
+                } else {
+                    this.chartError = 'Invalid analytics data structure received.';
+                }
             } catch (err) {
                 this.chartError = err.message;
                 console.error('Error fetching analytics:', err);
@@ -157,7 +181,7 @@
             
             const clickCounts = this.selectedDayData.click_counts; // Get click counts for title
             const dateString = this.days[index]; // Get selected day string
-      
+            
             this.chartTitle = `Total Click Counts for ${dateString}: ${clickCounts}`;
 
             this.chartSeries = this.prepareChartData(this.selectedDayData); // Prepare new chart data
