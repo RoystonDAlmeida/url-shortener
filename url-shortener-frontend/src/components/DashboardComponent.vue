@@ -124,6 +124,7 @@
 
         },
         mounted() {
+            document.title = "URL Shortener Dashboard";
             this.fetchUrls(); // Fetch URLs when the component is mounted
         }
     };
