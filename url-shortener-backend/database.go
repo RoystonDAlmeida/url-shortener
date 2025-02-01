@@ -23,6 +23,13 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// Enable foreign key support
+	_, err = urlShortener.db.Exec("PRAGMA foreign_keys = ON;")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	createTables()
 }
 
